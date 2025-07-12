@@ -14,7 +14,7 @@ interface OCCardProps {
 
 const OCCard: React.FC<OCCardProps> = ({ oc, isOwner = false, onEdit, onBattle, onShare, onBattleRequest }) => {
   const totalPower = oc.stats.strength + oc.stats.speed + oc.stats.intelligence;
-  const maxPowers = 4; // Can have up to 4 powers after winning battles
+  const maxPowers = 999; // Can have up to 4 powers after winning battles
   const title = getTitleForOC(oc);
   const titleColor = getTitleColor(title);
 
