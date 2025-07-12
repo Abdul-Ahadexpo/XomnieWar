@@ -65,7 +65,7 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
   };
 
   const handleSpecialAbilityChange = (value: string) => {
-    if (value.length <= 300) {
+    if (value.length <= 1000) {
       setFormData(prev => ({ ...prev, specialAbility: value }));
       setSpecialAbilityCount(value.length);
     }
