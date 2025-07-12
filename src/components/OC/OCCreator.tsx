@@ -65,7 +65,7 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
   };
 
   const handleSpecialAbilityChange = (value: string) => {
-    if (value.length <= 300) {
+    if (value.length <= 700) {
       setFormData(prev => ({ ...prev, specialAbility: value }));
       setSpecialAbilityCount(value.length);
     }
@@ -188,18 +188,18 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
                   Special Ability Description
                 </label>
                 <p className="text-xs sm:text-sm text-gray-400 mb-2">
-                  Describe your ultimate ability in detail ({specialAbilityCount}/300)
+                  Describe your ultimate ability in detail ({specialAbilityCount}/700)
                 </p>
                 <textarea
                   value={formData.specialAbility}
                   onChange={(e) => handleSpecialAbilityChange(e.target.value)}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 h-28 sm:h-32 resize-none text-sm sm:text-base leading-relaxed"
                   placeholder="Describe your character's ultimate ability...&#10;&#10;Include details about how it works and its effects."
-                  maxLength={300}
+                  maxLength={700}
                   required
                 />
-                <div className={`text-xs mt-1 ${specialAbilityCount >= 280 ? 'text-red-400' : 'text-gray-500'}`}>
-                  {specialAbilityCount}/300 characters
+                <div className={`text-xs mt-1 ${specialAbilityCount >= 680 ? 'text-red-400' : 'text-gray-500'}`}>
+                  {specialAbilityCount}/700 characters
                 </div>
               </div>
 
