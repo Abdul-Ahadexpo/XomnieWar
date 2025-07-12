@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom prose styles for better text formatting */
+@layer components {
+  .prose-invert {
+    color: #e5e7eb;
+  }
+  
+  .prose-invert p {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+  
+  .prose-invert p:last-child {
+    margin-bottom: 0;
+  }
+  
+  .prose-sm {
+    font-size: 0.875rem;
+  }
+  
+  @media (min-width: 640px) {
+    .prose-sm {
+      font-size: 1rem;
+    }
+  }
+}
+
+/* Ensure proper text wrapping on mobile */
+@layer utilities {
+  .break-words {
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+  
+  .text-wrap {
+    text-wrap: wrap;
+  }
+}
+
+/* Custom scrollbar for better mobile experience */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #8B5CF6 #1F2937;
+  }
+  
+  *::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: #1F2937;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background: #8B5CF6;
+    border-radius: 3px;
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    background: #7C3AED;
+  }
+}
