@@ -80,7 +80,7 @@ const OCCard: React.FC<OCCardProps> = ({ oc, isOwner = false, onEdit, onBattle, 
       {/* Powers */}
       <div className="mb-4 sm:mb-6">
         <h3 className="text-base sm:text-lg font-semibold text-white mb-3">
-          Powers ({oc.powers.length}/{maxPowers})
+          Powers ({oc.powers.length})
         </h3>
         <div className="space-y-2">
           {oc.powers.map((power, index) => (

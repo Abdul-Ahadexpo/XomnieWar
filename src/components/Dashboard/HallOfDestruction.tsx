@@ -71,67 +71,67 @@ const HallOfDestruction: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {destroyedOCs.map((oc, index) => (
-              <div key={index} className="bg-gradient-to-br from-red-900/20 to-gray-900/20 backdrop-blur-lg rounded-2xl p-6 border border-red-500/30">
+              <div key={index} className="bg-gradient-to-br from-red-900/20 to-gray-900/20 backdrop-blur-lg rounded-2xl p-4 sm:p-6 border border-red-500/30">
                 <div className="text-center mb-4">
                   <img
                     src={oc.avatar}
                     alt={oc.name}
-                    className="w-20 h-20 rounded-full border-2 border-red-500 mx-auto mb-3 object-cover grayscale"
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-red-500 mx-auto mb-3 object-cover grayscale"
                     onError={(e) => {
                       e.currentTarget.src = 'https://via.placeholder.com/80x80/EF4444/FFFFFF?text=' + oc.name[0];
                     }}
                   />
-                  <h3 className="text-xl font-bold text-red-400 mb-1">{oc.name}</h3>
-                  <p className="text-gray-400 text-sm">💀 DESTROYED 💀</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-red-400 mb-1 truncate">{oc.name}</h3>
+                  <p className="text-gray-400 text-xs sm:text-sm">💀 DESTROYED 💀</p>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="bg-red-900/30 rounded-lg p-3 border border-red-500/30">
+                <div className="space-y-2 sm:space-y-3">
+                  <div className="bg-red-900/30 rounded-lg p-2 sm:p-3 border border-red-500/30">
                     <div className="flex items-center space-x-2 mb-2">
                       <Trophy className="h-4 w-4 text-yellow-400" />
-                      <span className="text-yellow-400 font-medium text-sm">Defeated By</span>
+                      <span className="text-yellow-400 font-medium text-xs sm:text-sm">Defeated By</span>
                     </div>
-                    <p className="text-white font-bold">{oc.defeatedBy}</p>
+                    <p className="text-white font-bold text-sm sm:text-base truncate">{oc.defeatedBy}</p>
                   </div>
 
-                  <div className="bg-gray-800/30 rounded-lg p-3 border border-gray-600/30">
+                  <div className="bg-gray-800/30 rounded-lg p-2 sm:p-3 border border-gray-600/30">
                     <div className="flex items-center space-x-2 mb-2">
                       <Calendar className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-400 font-medium text-sm">Date of Destruction</span>
+                      <span className="text-gray-400 font-medium text-xs sm:text-sm">Date of Destruction</span>
                     </div>
-                    <p className="text-gray-300">{oc.date}</p>
+                    <p className="text-gray-300 text-sm">{oc.date}</p>
                   </div>
 
-                  <div className="bg-purple-900/30 rounded-lg p-3 border border-purple-500/30">
+                  <div className="bg-purple-900/30 rounded-lg p-2 sm:p-3 border border-purple-500/30">
                     <div className="flex items-center space-x-2 mb-2">
                       <Zap className="h-4 w-4 text-purple-400" />
-                      <span className="text-purple-400 font-medium text-sm">Powers Stolen</span>
+                      <span className="text-purple-400 font-medium text-xs sm:text-sm">Powers Stolen</span>
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-1 max-h-20 overflow-y-auto">
                       {oc.powersStolen.map((power, powerIndex) => (
-                        <div key={powerIndex} className="text-purple-300 text-sm">
+                        <div key={powerIndex} className="text-purple-300 text-xs sm:text-sm break-words">
                           • {power}
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="bg-blue-900/30 rounded-lg p-3 border border-blue-500/30">
-                    <div className="text-blue-400 font-medium text-sm mb-2">Final Stats</div>
+                  <div className="bg-blue-900/30 rounded-lg p-2 sm:p-3 border border-blue-500/30">
+                    <div className="text-blue-400 font-medium text-xs sm:text-sm mb-2">Final Stats</div>
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <div className="text-center">
                         <div className="text-red-400 font-bold">{oc.stats.strength}</div>
-                        <div className="text-gray-400">STR</div>
+                        <div className="text-gray-400 text-xs">STR</div>
                       </div>
                       <div className="text-center">
                         <div className="text-yellow-400 font-bold">{oc.stats.speed}</div>
-                        <div className="text-gray-400">SPD</div>
+                        <div className="text-gray-400 text-xs">SPD</div>
                       </div>
                       <div className="text-center">
                         <div className="text-blue-400 font-bold">{oc.stats.intelligence}</div>
-                        <div className="text-gray-400">INT</div>
+                        <div className="text-gray-400 text-xs">INT</div>
                       </div>
                     </div>
                   </div>

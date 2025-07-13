@@ -61,7 +61,7 @@ export const useOC = (uid: string | undefined) => {
     const date = new Date().toISOString().split('T')[0];
 
     // Update winner's OC
-    const newWinnerPowers = [...winnerOC.powers, ...powersToTransfer].slice(0, 4);
+    const newWinnerPowers = [...winnerOC.powers, ...powersToTransfer];
     const newHistory = [
       ...(winnerOC.history || []),
       {

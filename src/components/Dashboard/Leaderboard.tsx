@@ -2,21 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { ref, onValue, off } from 'firebase/database';
 import { database } from '../../firebase/config';
 import { OC } from '../../types';
-import { Trophy, Crown, Zap, Target } from 'lucide-react';
+import { Trophy, Crown } from 'lucide-react';
 import { getTitleForOC, getTitleColor } from '../../utils/titles';
 
 interface LeaderboardEntry {
   uid: string;
   oc: OC;
-  wins: number;
-  powersCount: number;
   totalPower: number;
 }
 
 const Leaderboard: React.FC = () => {
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<'wins' | 'powers' | 'totalPower'>('wins');
 
   useEffect(() => {
     const usersRef = ref(database, 'users');
@@ -32,8 +29,6 @@ const Leaderboard: React.FC = () => {
             leaderboardData.push({
               uid,
               oc,
-              wins: oc.wins || 0,
-              powersCount: oc.powers.length,
               totalPower: oc.stats.strength + oc.stats.speed + oc.stats.intelligence
             });
           }
@@ -49,18 +44,9 @@ const Leaderboard: React.FC = () => {
     return () => off(usersRef, 'value', handleData);
   }, []);
 
-  const sortedLeaders = [...leaders].sort((a, b) => {
-    switch (sortBy) {
-      case 'wins':
-        return b.wins - a.wins || b.totalPower - a.totalPower;
-      case 'powers':
-        return b.powersCount - a.powersCount || b.wins - a.wins;
-      case 'totalPower':
-        return b.totalPower - a.totalPower || b.wins - a.wins;
-      default:
-        return 0;
-    }
-  }).slice(0, 10);
+  const sortedLeaders = [...leaders]
+    .sort((a, b) => b.totalPower - a.totalPower)
+    .slice(0, 10);
 
   if (loading) {
     return (
@@ -77,44 +63,9 @@ const Leaderboard: React.FC = () => {
 
   return (
     <div className="bg-black/20 backdrop-blur-lg rounded-2xl p-6 border border-purple-500/20">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
-          <Trophy className="h-6 w-6 text-yellow-400" />
-          <h3 className="text-2xl font-bold text-white">Leaderboard</h3>
-        </div>
-        
-        <div className="flex space-x-2">
-          <button
-            onClick={() => setSortBy('wins')}
-            className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-              sortBy === 'wins' 
-                ? 'bg-yellow-600/30 text-yellow-400' 
-                : 'bg-gray-700/50 text-gray-400 hover:text-gray-300'
-            }`}
-          >
-            Wins
-          </button>
-          <button
-            onClick={() => setSortBy('powers')}
-            className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-              sortBy === 'powers' 
-                ? 'bg-purple-600/30 text-purple-400' 
-                : 'bg-gray-700/50 text-gray-400 hover:text-gray-300'
-            }`}
-          >
-            Powers
-          </button>
-          <button
-            onClick={() => setSortBy('totalPower')}
-            className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-              sortBy === 'totalPower' 
-                ? 'bg-blue-600/30 text-blue-400' 
-                : 'bg-gray-700/50 text-gray-400 hover:text-gray-300'
-            }`}
-          >
-            Total Power
-          </button>
-        </div>
+      <div className="flex items-center space-x-2 mb-6">
+        <Trophy className="h-6 w-6 text-yellow-400" />
+        <h3 className="text-2xl font-bold text-white">Leaderboard</h3>
       </div>
 
       <div className="space-y-3">
@@ -157,19 +108,9 @@ const Leaderboard: React.FC = () => {
                   <p className={`text-sm font-medium ${titleColor}`}>{title}</p>
                 </div>
                 
-                <div className="flex space-x-4 text-sm">
-                  <div className="text-center">
-                    <div className="text-yellow-400 font-bold">{entry.wins}</div>
-                    <div className="text-gray-400">Wins</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-purple-400 font-bold">{entry.powersCount}</div>
-                    <div className="text-gray-400">Powers</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-blue-400 font-bold">{entry.totalPower}</div>
-                    <div className="text-gray-400">Total</div>
-                  </div>
+                <div className="text-center">
+                  <div className="text-blue-400 font-bold text-lg">{entry.totalPower}</div>
+                  <div className="text-gray-400 text-xs">Total Power</div>
                 </div>
               </div>
             );

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { ref, onValue, off } from 'firebase/database';
 import { database } from '../../firebase/config';
 import { OC } from '../../types';
-import { Wand2, Save } from 'lucide-react';
+import { Wand2, Save, Image } from 'lucide-react';
+import ImageUploader from './ImageUploader';
 
 interface OCCreatorProps {
   onSave: (oc: OC) => Promise<void>;
@@ -48,6 +49,8 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
   const [loading, setLoading] = useState(false);
   const [specialAbilityCount, setSpecialAbilityCount] = useState(existingOC?.specialAbility.length || 0);
   const [nameError, setNameError] = useState('');
+  const isEditing = !!existingOC;
+  const [showImageUploader, setShowImageUploader] = useState(false);
 
   // Fetch existing character names to prevent duplicates
   React.useEffect(() => {
@@ -171,52 +174,97 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
               </div>
 
               <div>
-                <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
-                  Avatar URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.avatar}
-                  onChange={(e) => setFormData(prev => ({ ...prev, avatar: e.target.value }))}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
-                  placeholder="https://example.com/avatar.jpg"
-                  required
-                />
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm sm:text-base font-medium text-gray-300">
+                    Character Avatar
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowImageUploader(!showImageUploader)}
+                    className="flex items-center space-x-1 px-3 py-1 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 rounded-lg transition-colors text-xs sm:text-sm"
+                  >
+                    <Image className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span>{showImageUploader ? 'Hide' : 'Upload'}</span>
+                  </button>
+                </div>
+                
+                {showImageUploader ? (
+                  <ImageUploader
+                    currentImage={formData.avatar}
+                    onImageUploaded={(url) => {
+                      setFormData(prev => ({ ...prev, avatar: url }));
+                      setShowImageUploader(false);
+                    }}
+                  />
+                ) : (
+                  <input
+                    type="url"
+                    value={formData.avatar}
+                    onChange={(e) => setFormData(prev => ({ ...prev, avatar: e.target.value }))}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+                    placeholder="https://example.com/avatar.jpg"
+                    required
+                  />
+                )}
               </div>
 
               <div>
                 <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
-                  Power 1
+                  {isEditing ? 'Powers (Cannot be changed)' : 'Power 1'}
                 </label>
-                <select
-                  value={formData.powers[0]}
-                  onChange={(e) => handlePowerChange(0, e.target.value)}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
-                  required
-                >
-                  <option value="">Select a power</option>
-                  {POWER_OPTIONS.map(power => (
-                    <option key={power} value={power}>{power}</option>
-                  ))}
-                </select>
+                {isEditing ? (
+                  <div className="space-y-2">
+                    {formData.powers.map((power, index) => (
+                      <div key={index} className={`p-3 rounded-lg border ${
+                        index < 2 
+                          ? 'bg-purple-600/20 border-purple-500/30 text-purple-300' 
+                          : 'bg-red-600/20 border-red-500/30 text-red-300'
+                      }`}>
+                        <span className="font-medium">{power}</span>
+                        {index >= 2 && (
+                          <div className="text-xs mt-1 opacity-75">
+                            ☠️ Absorbed from battle
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    <p className="text-xs text-gray-400">
+                      Powers cannot be changed after creation. Gain more through battle victories!
+                    </p>
+                  </div>
+                ) : (
+                  <select
+                    value={formData.powers[0]}
+                    onChange={(e) => handlePowerChange(0, e.target.value)}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+                    required
+                  >
+                    <option value="">Select a power</option>
+                    {POWER_OPTIONS.map(power => (
+                      <option key={power} value={power}>{power}</option>
+                    ))}
+                  </select>
+                )}
               </div>
 
-              <div>
-                <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
-                  Power 2
-                </label>
-                <select
-                  value={formData.powers[1]}
-                  onChange={(e) => handlePowerChange(1, e.target.value)}
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
-                  required
-                >
-                  <option value="">Select a power</option>
-                  {POWER_OPTIONS.map(power => (
-                    <option key={power} value={power}>{power}</option>
-                  ))}
-                </select>
-              </div>
+              {!isEditing && (
+                <div>
+                  <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
+                    Power 2
+                  </label>
+                  <select
+                    value={formData.powers[1]}
+                    onChange={(e) => handlePowerChange(1, e.target.value)}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
+                    required
+                  >
+                    <option value="">Select a power</option>
+                    {POWER_OPTIONS.map(power => (
+                      <option key={power} value={power}>{power}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
             {/* Right Column */}
@@ -260,32 +308,56 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
               {/* Stats */}
               <div className="bg-gray-800/30 rounded-lg p-3 sm:p-4 border border-gray-700">
                 <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">
-                  Stats (Total: {totalStats}/300)
+                  {isEditing ? 'Stats (Cannot be changed)' : `Stats (Total: ${totalStats}/300)`}
                 </h3>
                 
-                <div className="space-y-3 sm:space-y-4">
-                  {Object.entries(formData.stats).map(([stat, value]) => (
-                    <div key={stat}>
-                      <div className="flex justify-between items-center mb-2">
-                        <label className="text-xs sm:text-sm font-medium text-gray-300 capitalize">
-                          {stat}
-                        </label>
-                        <span className="text-purple-400 font-bold text-sm sm:text-base">{value}</span>
+                {isEditing ? (
+                  <div className="space-y-3 sm:space-y-4">
+                    {Object.entries(formData.stats).map(([stat, value]) => (
+                      <div key={stat}>
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="text-xs sm:text-sm font-medium text-gray-300 capitalize">
+                            {stat}
+                          </label>
+                          <span className="text-purple-400 font-bold text-sm sm:text-base">{value}</span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-lg h-2">
+                          <div
+                            className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-lg"
+                            style={{ width: `${(value / 150) * 100}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <input
-                        type="range"
-                        min="1"
-                        max="100"
-                        value={value}
-                        onChange={(e) => handleStatChange(stat as keyof OC['stats'], parseInt(e.target.value))}
-                        className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                        style={{
-                          background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${value}%, #374151 ${value}%, #374151 100%)`
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                    <p className="text-xs text-gray-400">
+                      Stats cannot be changed after creation. Improve through battle victories!
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 sm:space-y-4">
+                    {Object.entries(formData.stats).map(([stat, value]) => (
+                      <div key={stat}>
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="text-xs sm:text-sm font-medium text-gray-300 capitalize">
+                            {stat}
+                          </label>
+                          <span className="text-purple-400 font-bold text-sm sm:text-base">{value}</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="1"
+                          max="100"
+                          value={value}
+                          onChange={(e) => handleStatChange(stat as keyof OC['stats'], parseInt(e.target.value))}
+                          className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                          style={{
+                            background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${value}%, #374151 ${value}%, #374151 100%)`
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
