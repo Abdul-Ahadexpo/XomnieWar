@@ -7,7 +7,7 @@ import { useBattleRequests } from '../../hooks/useBattleRequests';
 import { useComments } from '../../hooks/useComments';
 import { OC } from '../../types';
 import OCCard from './OCCard';
-import BattleModal from '../Battle/BattleModal';
+import InteractiveBattleModal from '../Battle/InteractiveBattleModal';
 import { ArrowLeft, MessageCircle, Send, Loader2 } from 'lucide-react';
 
 const OCViewer: React.FC = () => {
@@ -68,9 +68,6 @@ const OCViewer: React.FC = () => {
     }
   };
 
-  const handleInstantBattle = () => {
-    setShowBattle(true);
-  };
 
   const handleAddComment = async () => {
     if (!comment.trim() || !user?.uid || !userOC) return;
@@ -139,7 +136,6 @@ const OCViewer: React.FC = () => {
             oc={targetOC}
             isOwner={isOwner}
             onEdit={isOwner ? () => navigate('/') : undefined}
-            onBattle={!isOwner && userOC ? handleInstantBattle : undefined}
             onBattleRequest={!isOwner && userOC ? handleBattleRequest : undefined}
           />
         </div>
@@ -201,7 +197,7 @@ const OCViewer: React.FC = () => {
 
         {/* Battle Modal */}
         {showBattle && userOC && (
-          <BattleModal
+          <InteractiveBattleModal
             playerOC={userOC}
             opponentOC={targetOC}
             opponentUid={targetUid!}

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { ref, onValue, off } from 'firebase/database';
+import { database } from '../../firebase/config';
 import { OC } from '../../types';
 import { Wand2, Save } from 'lucide-react';
 
@@ -29,6 +31,7 @@ const POWER_OPTIONS = [
 ];
 
 const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
+  const [existingNames, setExistingNames] = useState<string[]>([]);
   const [formData, setFormData] = useState<OC>(existingOC || {
     name: '',
     backstory: '',
@@ -44,7 +47,42 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
   });
   const [loading, setLoading] = useState(false);
   const [specialAbilityCount, setSpecialAbilityCount] = useState(existingOC?.specialAbility.length || 0);
+  const [nameError, setNameError] = useState('');
 
+  // Fetch existing character names to prevent duplicates
+  React.useEffect(() => {
+    const usersRef = ref(database, 'users');
+    
+    const handleData = (snapshot: any) => {
+      const users = snapshot.val();
+      if (users) {
+        const names: string[] = [];
+        Object.values(users).forEach((userData: any) => {
+          if (userData.oc && userData.oc.name) {
+            names.push(userData.oc.name.toLowerCase());
+          }
+        });
+        setExistingNames(names);
+      }
+    };
+
+    onValue(usersRef, handleData);
+    return () => off(usersRef, 'value', handleData);
+  }, []);
+
+  const validateName = (name: string) => {
+    const lowerName = name.toLowerCase().trim();
+    if (!name.trim()) {
+      setNameError('Name is required');
+      return false;
+    }
+    if (existingNames.includes(lowerName) && (!existingOC || existingOC.name.toLowerCase() !== lowerName)) {
+      setNameError('This name is already taken by another warrior');
+      return false;
+    }
+    setNameError('');
+    return true;
+  };
   const handleStatChange = (stat: keyof OC['stats'], value: number) => {
     setFormData(prev => ({
       ...prev,
@@ -72,6 +110,11 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateName(formData.name)) {
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -109,11 +152,22 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => {
+                    const newName = e.target.value;
+                    setFormData(prev => ({ ...prev, name: newName }));
+                    if (newName.trim()) {
+                      validateName(newName);
+                    } else {
+                      setNameError('');
+                    }
+                  }}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base"
                   placeholder="Enter character name"
                   required
                 />
+                {nameError && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-1">{nameError}</p>
+                )}
               </div>
 
               <div>
@@ -188,18 +242,18 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onSave, existingOC }) => {
                   Special Ability Description
                 </label>
                 <p className="text-xs sm:text-sm text-gray-400 mb-2">
-                  Describe your ultimate ability in detail ({specialAbilityCount}/700)
+                  Describe your ultimate ability in detail ({specialAbilityCount}/300)
                 </p>
                 <textarea
                   value={formData.specialAbility}
                   onChange={(e) => handleSpecialAbilityChange(e.target.value)}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 h-28 sm:h-32 resize-none text-sm sm:text-base leading-relaxed"
                   placeholder="Describe your character's ultimate ability...&#10;&#10;Include details about how it works and its effects."
-                  maxLength={700}
+                  maxLength={300}
                   required
                 />
-                <div className={`text-xs mt-1 ${specialAbilityCount >= 680 ? 'text-red-400' : 'text-gray-500'}`}>
-                  {specialAbilityCount}/700 characters
+                <div className={`text-xs mt-1 ${specialAbilityCount >= 280 ? 'text-red-400' : 'text-gray-500'}`}>
+                  {specialAbilityCount}/300 characters
                 </div>
               </div>
 

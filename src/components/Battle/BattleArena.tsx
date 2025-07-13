@@ -3,7 +3,6 @@ import { ref, onValue, off } from 'firebase/database';
 import { database } from '../../firebase/config';
 import { OC } from '../../types';
 import OCCard from '../OC/OCCard';
-import BattleModal from './BattleModal';
 import { Sword, Trophy } from 'lucide-react';
 
 interface BattleArenaProps {
@@ -19,8 +18,6 @@ interface UserWithOC {
 
 const BattleArena: React.FC<BattleArenaProps> = ({ userOC, currentUid }) => {
   const [opponents, setOpponents] = useState<UserWithOC[]>([]);
-  const [selectedOpponent, setSelectedOpponent] = useState<UserWithOC | null>(null);
-  const [showBattle, setShowBattle] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,15 +48,6 @@ const BattleArena: React.FC<BattleArenaProps> = ({ userOC, currentUid }) => {
     return () => off(usersRef, 'value', handleData);
   }, [currentUid]);
 
-  const handleBattle = (opponent: UserWithOC) => {
-    setSelectedOpponent(opponent);
-    setShowBattle(true);
-  };
-
-  const handleBattleComplete = () => {
-    setShowBattle(false);
-    setSelectedOpponent(null);
-  };
 
   if (loading) {
     return (
@@ -97,20 +85,9 @@ const BattleArena: React.FC<BattleArenaProps> = ({ userOC, currentUid }) => {
               <OCCard
                 key={opponent.uid}
                 oc={opponent.oc}
-                onBattle={() => handleBattle(opponent)}
               />
             ))}
           </div>
-        )}
-
-        {/* Battle Modal */}
-        {showBattle && selectedOpponent && (
-          <BattleModal
-            playerOC={userOC}
-            opponentOC={selectedOpponent.oc}
-            opponentUid={selectedOpponent.uid}
-            onClose={handleBattleComplete}
-          />
         )}
       </div>
     </div>

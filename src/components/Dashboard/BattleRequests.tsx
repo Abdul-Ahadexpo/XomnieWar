@@ -4,7 +4,7 @@ import { useOC } from '../../hooks/useOC';
 import { useAuth } from '../../hooks/useAuth';
 import { BattleRequest } from '../../types';
 import { Sword, Check, X, Clock } from 'lucide-react';
-import BattleModal from '../Battle/BattleModal';
+import InteractiveBattleModal from '../Battle/InteractiveBattleModal';
 
 const BattleRequests: React.FC = () => {
   const { user } = useAuth();
@@ -100,7 +100,7 @@ const BattleRequests: React.FC = () => {
 
       {/* Battle Modal */}
       {selectedRequest && (
-        <BattleModal
+        <InteractiveBattleModal
           playerOC={oc}
           opponentOC={{
             name: selectedRequest.request.fromOCName,
