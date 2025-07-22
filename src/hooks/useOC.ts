@@ -3,7 +3,7 @@ import { ref, onValue, set, off, remove, update } from 'firebase/database';
 import { database } from '../firebase/config';
 import { OC, Power } from '../types';
 
-export const useOC = (uid: string | undefined) => {
+export const useOC = (uid?: string) => {
   const [oc, setOC] = useState<OC | null>(null);
   const [loading, setLoading] = useState(true);
   const [banned, setBanned] = useState(false);
@@ -33,17 +33,45 @@ export const useOC = (uid: string | undefined) => {
     return () => off(userRef, 'value', handleData);
   }, [uid]);
 
-  const saveOC = async (ocData: OC) => {
+  const createOC = async (ocData: OC) => {
     if (!uid) throw new Error('User not authenticated');
     
     const ocRef = ref(database, `users/${uid}/oc`);
-    await set(ocRef, {
-      ...ocData,
-      createdAt: Date.now(),
-      wins: ocData.wins || 0,
-      history: ocData.history || [],
-      powersAbsorbed: ocData.powersAbsorbed || []
-    });
+    await set(ocRef, ocData);
+  };
+
+  const updateOC = async (ocId: string, ocData: OC) => {
+    if (!uid) throw new Error('User not authenticated');
+    
+    const ocRef = ref(database, `users/${uid}/oc`);
+    await set(ocRef, ocData);
+  };
+
+  const checkNameExists = async (name: string): Promise<boolean> => {
+    try {
+      const usersRef = ref(database, 'users');
+      return new Promise((resolve) => {
+        onValue(usersRef, (snapshot) => {
+          const users = snapshot.val();
+          if (!users) {
+            resolve(false);
+            return;
+          }
+
+          for (const userId in users) {
+            const user = users[userId];
+            if (user.oc && user.oc.name && user.oc.name.toLowerCase() === name.toLowerCase()) {
+              resolve(true);
+              return;
+            }
+          }
+          resolve(false);
+        }, { onlyOnce: true });
+      });
+    } catch (error) {
+      console.error('Error checking name:', error);
+      return false;
+    }
   };
 
   const executeBattleResult = async (
@@ -108,5 +136,5 @@ export const useOC = (uid: string | undefined) => {
     await update(ref(database), updates);
   };
 
-  return { oc, loading, banned, saveOC, executeBattleResult };
+  return { oc, loading, banned, createOC, updateOC, checkNameExists, executeBattleResult };
 };
