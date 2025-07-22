@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOC } from '../../hooks/useOC';
 import { useAuth } from '../../hooks/useAuth';
 import { OC } from '../../types';
+import { calculatePowerStats } from '../../utils/powers';
 import { X, Sword, Shield, Zap, Trophy, Flame, Skull, Crown, Target } from 'lucide-react';
 
 interface InteractiveBattleModalProps {
@@ -45,28 +46,37 @@ const InteractiveBattleModal: React.FC<InteractiveBattleModalProps> = ({
   const playerPower = playerOC.stats.strength + playerOC.stats.speed + playerOC.stats.intelligence;
   const opponentPower = opponentOC.stats.strength + opponentOC.stats.speed + opponentOC.stats.intelligence;
 
+  const playerPowerStats = calculatePowerStats(playerOC.powers);
+  const opponentPowerStats = calculatePowerStats(opponentOC.powers);
+
   const calculateDamage = (attacker: OC, defender: OC, attackerAction: Action, defenderAction: Action) => {
+    const attackerPowerStats = attacker === playerOC ? playerPowerStats : opponentPowerStats;
+    const defenderPowerStats = defender === playerOC ? playerPowerStats : opponentPowerStats;
+    
     let baseDamage = 0;
     
     switch (attackerAction) {
       case 'attack':
-        baseDamage = Math.floor(attacker.stats.strength / 3) + Math.random() * 15;
+        baseDamage = Math.floor((attacker.stats.strength + attackerPowerStats.attack) / 4) + Math.random() * 10;
         break;
       case 'special':
-        baseDamage = Math.floor((attacker.stats.strength + attacker.stats.intelligence) / 4) + Math.random() * 20;
+        baseDamage = Math.floor((attacker.stats.intelligence + attackerPowerStats.magic) / 3) + Math.random() * 15;
         break;
       default:
         baseDamage = 0;
     }
 
     // Defender's action affects damage taken
+    let defenseMultiplier = 1;
+    
     if (defenderAction === 'defend') {
-      baseDamage *= 0.5; // 50% damage reduction when defending
+      const defenseValue = defender.stats.speed + defenderPowerStats.defense;
+      defenseMultiplier = Math.max(0.2, 1 - (defenseValue / 200)); // Better defense = less damage
     } else if (defenderAction === 'special' && attackerAction === 'attack') {
-      baseDamage *= 0.7; // Special abilities provide some protection
+      defenseMultiplier = 0.8; // Special abilities provide some protection
     }
 
-    return Math.max(5, Math.floor(baseDamage)); // Minimum 5 damage
+    return Math.max(5, Math.floor(baseDamage * defenseMultiplier)); // Minimum 5 damage
   };
 
   const getOpponentAction = (): Action => {
@@ -146,6 +156,13 @@ const InteractiveBattleModal: React.FC<InteractiveBattleModalProps> = ({
   const executeBattle = async () => {
     if (!winner || !user) return;
     
+    // The King can never be defeated (check if player is top of leaderboard)
+    // For now, we'll check if the player has the king title
+    if (winner === 'opponent' && playerOC.name === 'Natsuo') { // Keep Natsuo protection for now
+      setWinner('player');
+      return;
+    }
+    
     setExecuting(true);
     
     try {
@@ -161,8 +178,7 @@ const InteractiveBattleModal: React.FC<InteractiveBattleModalProps> = ({
           opponentUid,
           playerOC,
           opponentOC,
-          newStats,
-          opponentOC.powers
+          newStats
         );
       } else {
         const newStats = {
@@ -176,8 +192,7 @@ const InteractiveBattleModal: React.FC<InteractiveBattleModalProps> = ({
           user.uid,
           opponentOC,
           playerOC,
-          newStats,
-          playerOC.powers
+          newStats
         );
       }
       

@@ -110,7 +110,7 @@ const HallOfDestruction: React.FC = () => {
                       <span className="text-purple-400 font-medium text-xs sm:text-sm">Powers Stolen</span>
                     </div>
                     <div className="space-y-1 max-h-20 overflow-y-auto">
-                      {oc.powersStolen.map((power, powerIndex) => (
+                      {(oc.powersStolen || []).map((power, powerIndex) => (
                         <div key={powerIndex} className="text-purple-300 text-xs sm:text-sm break-words">
                           • {power}
                         </div>

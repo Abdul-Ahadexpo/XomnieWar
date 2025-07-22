@@ -5,10 +5,12 @@ import { OC } from '../../types';
 import OCCard from '../OC/OCCard';
 import BattleArena from '../Battle/BattleArena';
 import { User, Sword, LogOut, Home, Trophy, Skull, Bell, Search, BarChart3, Menu, X } from 'lucide-react';
+import { Book } from 'lucide-react';
 import HallOfDestruction from './HallOfDestruction';
 import BattleRequests from './BattleRequests';
 import Leaderboard from './Leaderboard';
 import ExploreOCs from './ExploreOCs';
+import InteractionGuide from '../Guide/InteractionGuide';
 
 interface DashboardProps {
   oc: OC;
@@ -16,7 +18,7 @@ interface DashboardProps {
   onEdit: () => void;
 }
 
-type TabType = 'profile' | 'battle' | 'hall' | 'requests' | 'leaderboard' | 'explore';
+type TabType = 'profile' | 'battle' | 'hall' | 'requests' | 'leaderboard' | 'explore' | 'guide';
 
 const Dashboard: React.FC<DashboardProps> = ({ oc, uid, onEdit }) => {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
@@ -64,6 +66,7 @@ const Dashboard: React.FC<DashboardProps> = ({ oc, uid, onEdit }) => {
     { id: 'requests', label: 'Battle Requests', icon: Bell },
     { id: 'leaderboard', label: 'Leaderboard', icon: BarChart3 },
     { id: 'explore', label: 'Explore', icon: Search },
+    { id: 'guide', label: 'Guide', icon: Book },
   ];
 
   const handleTabChange = (tab: TabType) => {
@@ -214,6 +217,10 @@ const Dashboard: React.FC<DashboardProps> = ({ oc, uid, onEdit }) => {
             </div>
             <ExploreOCs />
           </div>
+        )}
+
+        {activeTab === 'guide' && (
+          <InteractionGuide />
         )}
       </div>
     </div>

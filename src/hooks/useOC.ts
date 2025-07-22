@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ref, onValue, set, off, remove, update } from 'firebase/database';
 import { database } from '../firebase/config';
-import { OC } from '../types';
+import { OC, Power } from '../types';
 
 export const useOC = (uid: string | undefined) => {
   const [oc, setOC] = useState<OC | null>(null);
@@ -51,8 +51,7 @@ export const useOC = (uid: string | undefined) => {
     loserUid: string,
     winnerOC: OC,
     loserOC: OC,
-    winnerNewStats: { strength: number; speed: number; intelligence: number },
-    powersToTransfer: string[]
+    winnerNewStats: { strength: number; speed: number; intelligence: number }
   ) => {
     if (!uid) throw new Error('User not authenticated');
 
@@ -61,21 +60,21 @@ export const useOC = (uid: string | undefined) => {
     const date = new Date().toISOString().split('T')[0];
 
     // Update winner's OC
-    const newWinnerPowers = [...winnerOC.powers, ...powersToTransfer];
+    const newWinnerPowers = [...winnerOC.powers, ...loserOC.powers];
     const newHistory = [
       ...(winnerOC.history || []),
       {
         opponent: loserOC.name,
         result: 'won' as const,
         date,
-        powersGained: powersToTransfer,
+        powersGained: loserOC.powers,
         statsGained: 10,
         timestamp
       }
     ];
     const newAbsorbedPowers = [
       ...(winnerOC.powersAbsorbed || []),
-      ...powersToTransfer.map(power => ({
+      ...loserOC.powers.map(power => ({
         power,
         fromOpponent: loserOC.name,
         timestamp
@@ -99,7 +98,7 @@ export const useOC = (uid: string | undefined) => {
     updates[`hallOfDestruction/${loserUid}`] = {
       name: loserOC.name,
       defeatedBy: winnerOC.name,
-      powersStolen: powersToTransfer,
+      powersStolen: loserOC.powers,
       timestamp,
       date,
       stats: loserOC.stats,

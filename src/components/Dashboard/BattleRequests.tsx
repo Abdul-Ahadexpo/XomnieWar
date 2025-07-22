@@ -20,7 +20,9 @@ const BattleRequests: React.FC = () => {
       await acceptBattleRequest(fromUid);
       // Set up battle
       const request = incomingRequests[fromUid];
-      setSelectedRequest({ request, fromUid });
+      if (request.fromOCData) {
+        setSelectedRequest({ request, fromUid });
+      }
     } catch (error) {
       console.error('Error accepting battle request:', error);
     }
@@ -102,15 +104,7 @@ const BattleRequests: React.FC = () => {
       {selectedRequest && (
         <InteractiveBattleModal
           playerOC={oc}
-          opponentOC={{
-            name: selectedRequest.request.fromOCName,
-            avatar: selectedRequest.request.fromOCAvatar,
-            powers: [], // We'll need to fetch full OC data
-            stats: { strength: 50, speed: 50, intelligence: 50 }, // Placeholder
-            backstory: '',
-            specialAbility: '',
-            createdAt: 0
-          }}
+          opponentOC={selectedRequest.request.fromOCData}
           opponentUid={selectedRequest.fromUid}
           onClose={handleBattleComplete}
         />

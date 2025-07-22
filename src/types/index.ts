@@ -2,7 +2,7 @@ export interface OC {
   name: string;
   backstory: string;
   avatar: string;
-  powers: string[]; // Can have up to 4 powers after winning battles
+  powers: Power[]; // Can have unlimited powers after winning battles
   stats: {
     strength: number;
     speed: number;
@@ -14,6 +14,27 @@ export interface OC {
   history?: BattleHistory[];
   powersAbsorbed?: AbsorbedPower[];
   title?: string;
+  customPowers?: CustomPower[];
+}
+
+export interface Power {
+  name: string;
+  attack: number;
+  defense: number;
+  magic: number;
+  description: string;
+  isCustom?: boolean;
+  createdBy?: string;
+}
+
+export interface CustomPower {
+  name: string;
+  attack: number;
+  defense: number;
+  magic: number;
+  description: string;
+  createdBy: string;
+  timestamp: number;
 }
 
 export interface User {
@@ -35,7 +56,7 @@ export interface BattleHistory {
   opponent: string;
   result: 'won' | 'lost';
   date: string;
-  powersGained?: string[];
+  powersGained?: Power[];
   statsGained?: number;
   timestamp: number;
 }
@@ -45,6 +66,7 @@ export interface BattleRequest {
   fromOCName: string;
   fromOCAvatar: string;
   fromOCPower: number;
+  fromOCData: OC;
   status: 'pending' | 'accepted' | 'rejected';
   timestamp: number;
 }
@@ -56,7 +78,7 @@ export interface OCComment {
   timestamp: number;
 }
 export interface AbsorbedPower {
-  power: string;
+  power: Power;
   fromOpponent: string;
   timestamp: number;
 }

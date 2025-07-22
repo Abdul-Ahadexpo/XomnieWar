@@ -4,6 +4,7 @@ import { database } from '../../firebase/config';
 import { OC } from '../../types';
 import { Trophy, Crown } from 'lucide-react';
 import { getTitleForOC, getTitleColor } from '../../utils/titles';
+import OCCard from '../OC/OCCard';
 
 interface LeaderboardEntry {
   uid: string;
@@ -48,6 +49,8 @@ const Leaderboard: React.FC = () => {
     .sort((a, b) => b.totalPower - a.totalPower)
     .slice(0, 10);
 
+  const topPlayer = sortedLeaders[0];
+
   if (loading) {
     return (
       <div className="bg-black/20 backdrop-blur-lg rounded-2xl p-6 border border-purple-500/20">
@@ -73,7 +76,8 @@ const Leaderboard: React.FC = () => {
           <p className="text-gray-400 text-center py-8">No warriors to display yet.</p>
         ) : (
           sortedLeaders.map((entry, index) => {
-            const title = getTitleForOC(entry.oc);
+            const isTopPlayer = index === 0;
+            const title = getTitleForOC(entry.oc, isTopPlayer);
             const titleColor = getTitleColor(title);
             const rankIcon = index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
             
@@ -111,12 +115,31 @@ const Leaderboard: React.FC = () => {
                 <div className="text-center">
                   <div className="text-blue-400 font-bold text-lg">{entry.totalPower}</div>
                   <div className="text-gray-400 text-xs">Total Power</div>
+                  {isTopPlayer && (
+                    <div className="text-yellow-400 text-xs mt-1 font-bold">👑 THE KING 👑</div>
+                  )}
                 </div>
               </div>
             );
           })
         )}
       </div>
+
+      {/* King's Profile */}
+      {topPlayer && (
+        <div className="mt-8">
+          <div className="text-center mb-4">
+            <h3 className="text-xl font-bold text-yellow-400 flex items-center justify-center space-x-2">
+              <Crown className="h-6 w-6" />
+              <span>Current Ruler of XomnieWar</span>
+              <Crown className="h-6 w-6" />
+            </h3>
+          </div>
+          <div className="max-w-md mx-auto">
+            <OCCard oc={topPlayer.oc} isTopPlayer={true} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

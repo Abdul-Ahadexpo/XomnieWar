@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { OC } from '../../types';
 import { Sword, Zap, Brain, Share2, Edit, ChevronDown, ChevronUp } from 'lucide-react';
 import { getTitleForOC, getTitleColor } from '../../utils/titles';
+import { calculatePowerStats } from '../../utils/powers';
 
 interface OCCardProps {
   oc: OC;
+  isTopPlayer?: boolean;
   isOwner?: boolean;
   onEdit?: () => void;
   onBattle?: () => void;
@@ -12,13 +14,13 @@ interface OCCardProps {
   onBattleRequest?: () => void;
 }
 
-const OCCard: React.FC<OCCardProps> = ({ oc, isOwner = false, onEdit, onBattle, onShare, onBattleRequest }) => {
+const OCCard: React.FC<OCCardProps> = ({ oc, isTopPlayer = false, isOwner = false, onEdit, onBattle, onShare, onBattleRequest }) => {
   const [expandedBackstory, setExpandedBackstory] = useState(false);
   const [expandedAbility, setExpandedAbility] = useState(false);
   
   const totalPower = oc.stats.strength + oc.stats.speed + oc.stats.intelligence;
-  const maxPowers = 4;
-  const title = getTitleForOC(oc);
+  const powerStats = calculatePowerStats(oc.powers);
+  const title = getTitleForOC(oc, isTopPlayer);
   const titleColor = getTitleColor(title);
 
   const truncateText = (text: string, limit: number) => {
@@ -80,19 +82,42 @@ const OCCard: React.FC<OCCardProps> = ({ oc, isOwner = false, onEdit, onBattle, 
       {/* Powers */}
       <div className="mb-4 sm:mb-6">
         <h3 className="text-base sm:text-lg font-semibold text-white mb-3">
-          Powers ({oc.powers.length})
+          Powers ({oc.powers.length}) - ATK: {powerStats.attack} | DEF: {powerStats.defense} | MAG: {powerStats.magic}
         </h3>
         <div className="space-y-2">
           {oc.powers.map((power, index) => (
             <div key={index} className={`rounded-lg p-2 sm:p-3 border ${
               index < 2 
                 ? 'bg-gradient-to-r from-purple-600/20 to-blue-600/20 border-purple-500/30' 
+                : power.isCustom
+                ? 'bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border-yellow-500/30'
                 : 'bg-gradient-to-r from-red-600/20 to-orange-600/20 border-red-500/30'
             }`}>
-              <span className="text-purple-300 font-medium text-sm sm:text-base">{power}</span>
+              <div className="flex items-center justify-between mb-1">
+                <span className={`font-medium text-sm sm:text-base ${
+                  power.isCustom ? 'text-yellow-300' : 'text-purple-300'
+                }`}>
+                  {power.name} {power.isCustom && '⭐'}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs mb-2">
+                <div className="text-center">
+                  <div className="text-red-400 font-bold">{power.attack}</div>
+                  <div className="text-gray-400">ATK</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-blue-400 font-bold">{power.defense}</div>
+                  <div className="text-gray-400">DEF</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-purple-400 font-bold">{power.magic}</div>
+                  <div className="text-gray-400">MAG</div>
+                </div>
+              </div>
+              <p className="text-gray-300 text-xs">{power.description}</p>
               {index >= 2 && oc.powersAbsorbed && (
                 <div className="text-xs text-red-400 mt-1">
-                  ☠️ Absorbed from: {oc.powersAbsorbed.find(p => p.power === power)?.fromOpponent || 'Unknown'}
+                  ☠️ Absorbed from: {oc.powersAbsorbed.find(p => p.power.name === power.name)?.fromOpponent || 'Unknown'}
                 </div>
               )}
             </div>
@@ -113,7 +138,7 @@ const OCCard: React.FC<OCCardProps> = ({ oc, isOwner = false, onEdit, onBattle, 
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-red-500 to-red-600 h-2 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-red-500 to-red-600 h-2 rounded-full"
                   style={{ width: `${(oc.stats.strength / 150) * 100}%` }}
                 ></div>
               </div>
@@ -129,7 +154,7 @@ const OCCard: React.FC<OCCardProps> = ({ oc, isOwner = false, onEdit, onBattle, 
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-yellow-500 to-yellow-600 h-2 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-yellow-500 to-yellow-600 h-2 rounded-full"
                   style={{ width: `${(oc.stats.speed / 150) * 100}%` }}
                 ></div>
               </div>
@@ -145,7 +170,7 @@ const OCCard: React.FC<OCCardProps> = ({ oc, isOwner = false, onEdit, onBattle, 
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2">
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
                   style={{ width: `${(oc.stats.intelligence / 150) * 100}%` }}
                 ></div>
               </div>

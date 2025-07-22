@@ -59,6 +59,15 @@ const OCViewer: React.FC = () => {
   const handleBattleRequest = async () => {
     if (!user?.uid || !userOC || !targetUid) return;
     
+    // Check power requirement (must be within 100 power difference)
+    const userPower = userOC.stats.strength + userOC.stats.speed + userOC.stats.intelligence;
+    const targetPower = targetOC.stats.strength + targetOC.stats.speed + targetOC.stats.intelligence;
+    
+    if (userPower < targetPower - 100) {
+      alert(`You need at least ${targetPower - 100} total power to battle ${targetOC.name} (${targetPower} power). You currently have ${userPower} power.`);
+      return;
+    }
+    
     try {
       await sendBattleRequest(targetUid, userOC);
       setRequestSent(true);

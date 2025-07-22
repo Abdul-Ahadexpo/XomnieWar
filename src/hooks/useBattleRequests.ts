@@ -35,6 +35,7 @@ export const useBattleRequests = (uid: string | undefined) => {
       fromOCName: fromOC.name,
       fromOCAvatar: fromOC.avatar,
       fromOCPower: fromOC.stats.strength + fromOC.stats.speed + fromOC.stats.intelligence,
+      fromOCData: fromOC, // Store full OC data for battle
       status: 'pending',
       timestamp: Date.now()
     });
