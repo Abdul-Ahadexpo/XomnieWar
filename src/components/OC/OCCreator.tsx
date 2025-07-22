@@ -8,13 +8,13 @@ import CustomPowerCreator from './CustomPowerCreator';
 import { canCreateCustomPower } from '../../utils/titles';
 
 interface OCCreatorProps {
-  onClose: () => void;
+  onSave: () => void;
   editingOC?: any;
 }
 
-const OCCreator: React.FC<OCCreatorProps> = ({ onClose, editingOC }) => {
+const OCCreator: React.FC<OCCreatorProps> = ({ onSave, editingOC }) => {
   const { user } = useAuth();
-  const { createOC, updateOC, checkNameExists } = useOC();
+  const { createOC, updateOC, checkNameExists } = useOC(user?.uid);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -50,8 +50,8 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onClose, editingOC }) => {
         powers: editingOC.powers || [],
         stats: editingOC.stats || {
           strength: 50,
-          intelligence: 50,
           speed: 50,
+          intelligence: 50,
           durability: 50
         }
       });
@@ -147,10 +147,10 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onClose, editingOC }) => {
       const ocData = {
         ...formData,
         powers: isEditing ? formData.powers : selectedPowerObjects,
-        userId: user.uid,
-        createdAt: editingOC?.createdAt || new Date().toISOString(),
+        createdAt: editingOC?.createdAt || Date.now(),
         wins: editingOC?.wins || 0,
-        powersStolen: editingOC?.powersStolen || []
+        history: editingOC?.history || [],
+        powersAbsorbed: editingOC?.powersAbsorbed || []
       };
 
       if (isEditing) {
@@ -159,7 +159,7 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onClose, editingOC }) => {
         await createOC(ocData);
       }
       
-      onClose();
+      onSave();
     } catch (error) {
       console.error('Error saving OC:', error);
       alert('Error saving character. Please try again.');
@@ -376,12 +376,11 @@ const OCCreator: React.FC<OCCreatorProps> = ({ onClose, editingOC }) => {
               )}
             </div>
 
-            
             {/* Action Buttons */}
             <div className="flex space-x-4">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={onSave}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Cancel

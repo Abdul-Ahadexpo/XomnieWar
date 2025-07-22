@@ -79,7 +79,7 @@ function App() {
             !oc || editMode ? (
               <OCCreator 
                 onSave={handleSaveOC} 
-                existingOC={editMode ? oc : undefined}
+                editingOC={editMode ? oc : undefined}
               />
             ) : (
               <Dashboard 
